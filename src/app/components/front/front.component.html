@@ -1,0 +1,111 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="onDismiss('cancel','cancel')">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+        <span class="ml-1">ย้อนกลับ</span>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="p-4">
+    <p>GetUserMedia ⇒ canvas ⇒ Front Cameras</p>
+    <div class="h-[1px] bg-slate-400 my-2 "></div>
+    <div class="relative">
+      <video #showVideo autoplay playsinline class="w-full bg-slate-300 mb-2"></video>
+      <div class="absolute right-2 bottom-2 p-1 bg-slate-100 text-sm rounded-md">
+        use resolution is {{realVideoWidth}}x{{realVideoHeight}} and ratio is {{useRatio}}
+      </div>
+    </div>
+    <div *ngIf="ratio" class="flex flex-row w-full items-center justify-center">
+      <ion-item class="w-full text-sm" aria-label="Select Ratio">
+        <ion-label>Choose a ratio</ion-label>
+        <ion-select [(ngModel)]="selectedRatio" interface="action-sheet" placeholder="Choose a ratio"
+          (ionChange)="onRatioChange($event)">
+          <ion-select-option *ngFor="let ratio of ratio" [value]="ratio">
+            {{ ratio }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+    </div>
+    <div class="flex flex-row w-full items-center justify-center">
+      <ion-item class="w-full text-sm" aria-label="Select Camera">
+        <ion-label>Choose a resoltion to crop</ion-label>
+        <ion-select [(ngModel)]="selectedResolution" interface="action-sheet" placeholder="Choose a resolution"
+          (ionChange)="onLowerResolution($event)">
+          <ion-select-option *ngFor="let resolution of passedResolutions" [value]="resolution">
+            {{ resolution.label }} - {{ resolution.width }}x{{ resolution.height }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+    </div>
+    <!-- take picture -->
+    <br>
+    <button type="button" (click)="takePhoto()"
+      class="flex items-center h-10 px-6 rounded-md bg-sky-50 text-sky-700 hover:bg-sky-100 shadow">
+      <ion-icon name="videocam-outline"></ion-icon> &nbsp;
+      take a photo
+    </button>
+
+    <!-- for originalImages  -->
+    <br>
+    <div>
+      <div *ngIf="originalImages" class="flex flex-col w-full items-center justify-center">
+        <p class="flex w-full text-sm justify-center items-center p-2 bg-green-100">
+          Original Images {{ originalImages.resolution }}
+        </p>
+        <img [src]="originalImages.dataURL" class="h-auto" loading="lazy">
+      </div>
+
+      <br>
+      <button (click)="downloadImage(originalImages.dataURL)" type="button" *ngIf="onTakePhoto === true"
+        class="flex items-center h-10 px-6 rounded-md bg-sky-50 text-sky-700 hover:bg-sky-100 shadow">
+        <ion-icon name="videocam-outline"></ion-icon> &nbsp;
+        Download original images
+      </button>
+
+      <!-- for originalImages  -->
+      <br>
+      <div *ngIf="resizeImages">
+        <div class="flex flex-col w-full items-center justify-center">
+          <p class="flex w-full text-sm justify-center items-center p-2 bg-sky-100">
+            Resize Images {{ resizeImages.resolution }}
+          </p>
+          <img [src]="resizeImages.dataURL" class="h-auto" loading="lazy">
+        </div>
+
+        <br>
+        <button (click)="downloadImage(resizeImages.dataURL)" type="button" *ngIf="onTakePhoto === true"
+          class="flex items-center h-10 px-6 rounded-md bg-sky-50 text-sky-700 hover:bg-sky-100 shadow">
+          <ion-icon name="videocam-outline"></ion-icon> &nbsp;
+          Download resize images
+        </button>
+      </div>
+
+
+      <!-- for rotateImages  -->
+      <br>
+      <div *ngIf="rotateImages">
+        <div class="flex flex-col w-full items-center justify-center">
+          <p class="flex w-full text-sm justify-center items-center p-2 bg-sky-50">
+            rotate to 90 degree with resize {{ rotateImages.resolution }}
+          </p>
+          <img [src]="rotateImages.dataURL" class="h-auto" loading="lazy">
+        </div> <br>
+
+
+        <br>
+        <button (click)="downloadImage(rotateImages.dataURL)" type="button" *ngIf="onTakePhoto === true"
+          class="flex items-center h-10 px-6 rounded-md bg-sky-50 text-sky-700 hover:bg-sky-100 shadow">
+          <ion-icon name="videocam-outline"></ion-icon> &nbsp;
+          Download resize images
+        </button>
+      </div>
+    </div>
+    <video #realVideo playsInline autoplay class="hidden"></video>
+    <canvas #canvas class="hidden"></canvas>
+    <canvas #canvas2 class="hidden"></canvas>
+  </div>
+</ion-content>

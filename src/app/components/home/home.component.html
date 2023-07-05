@@ -1,0 +1,61 @@
+<ion-header>
+  <ion-toolbar>
+    <ion-title>
+      Home
+    </ion-title>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="p-4">
+    <div>
+      <p>Home for android </p>
+      <p>GetUserMedia ⇒ canvas</p>
+      <div class="h-[1px] bg-slate-400 my-2"></div>
+      <p class="mb-2 p-2 text-sm" [ngClass]="statePermission ?' bg-green-50 text-green-700': 'bg-red-50 text-red-700' ">
+        Permission to access the camera: {{ requestPermissionMsg }}
+      </p>
+      <button type="button" *ngIf="statePermission === false" (click)="requestPermissions()"
+        class="h-10 px-6 mt-2 bg-sky-50 text-sky-700 shadow">
+        access the camera
+      </button>
+
+      <p class="p-2 mt-2 text-sm bg-sky-50 text-sky-700">device info</p>
+      <div class="text-sm mt-2">
+        device: {{device}}<br>
+        deviceType: {{deviceType}}<br>
+        os: {{os}}<br>
+        osVersion: {{osVersion}}<br>
+        browser: {{browser}} <br>
+        browserVersion: {{browserVersion}} <br>
+        cpu: {{cpu}} Cores<br>
+        memory: {{memory}} Gigabyte<br>
+        orientation: {{orientation}} <br>
+        userAgent: {{userAgent}} <br><br>
+      </div>
+      <p class="p-2 mt-2 text-sm bg-sky-50 text-sky-700">detect cameras</p>
+      <div *ngFor="let camera of cameras" class="mt-2 mb-4 rounded-md overflow-hidden shadow-lg">
+        <div class="h-24 bg-sky-200"></div>
+        <div class="mx-6 my-4 border-b border-gray-light">
+          <div class="font-bold text-xl text-gray-darker mb-4">{{camera.side}}</div>
+          <p class="font-normal text-gray-dark text-sm mb-2">
+            {{camera.label}}
+          </p>
+          <p class="font-normal text-gray-dark text-sm mb-4">
+            {{camera.deviceId}}
+          </p>
+        </div>
+        <div class="mx-6 my-4 flex">
+          <button type="button" *ngIf="camera.side === 'Front Camera'" (click)="presentFrontCamera()"
+            class="h-10 px-6 mt-2 bg-sky-50 text-sky-700 rounded-md shadow">
+            <p class="w-full">Front Camera</p>
+          </button>
+          <button type="button" *ngIf="camera.side === 'Back Camera'" (click)="presentBackCamera()"
+            class="h-10 px-6 mt-2 bg-sky-50 text-sky-700 rounded-md shadow">
+            <p class="w-full">Back Camera</p>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</ion-content>
