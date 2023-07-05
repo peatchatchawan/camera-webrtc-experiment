@@ -235,3 +235,4 @@ export class FrontComponent implements OnInit {
     downloadLink.click();
   }
 }
+
