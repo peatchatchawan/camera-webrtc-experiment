@@ -13,6 +13,12 @@
   <div class="p-4">
     <p>GetUserMedia ⇒ canvas ⇒ Front Cameras</p>
     <div class="h-[1px] bg-slate-400 my-2 "></div>
+    <div class="relative">
+      <video #showVideo autoplay playsinline class="w-full bg-slate-300 mb-2"></video>
+      <div class="absolute right-2 bottom-2 p-1 bg-slate-100 text-sm rounded-md">
+        use resolution is {{realVideoWidth}}x{{realVideoHeight}} and ratio is {{useRatio}}
+      </div>
+    </div>
     <div *ngIf="ratio" class="flex flex-row w-full items-center justify-center">
       <ion-item class="w-full text-sm" aria-label="Select Ratio">
         <ion-label>Choose a ratio</ion-label>
@@ -35,14 +41,6 @@
         </ion-select>
       </ion-item>
     </div>
-
-    <div class="relative">
-      <video #showVideo autoplay playsinline class="w-full bg-slate-300 mb-2"></video>
-      <div class="absolute right-2 bottom-2 p-1 bg-slate-100 text-sm rounded-md">
-        use resolution is {{realVideoWidth}}x{{realVideoHeight}} and ratio is {{useRatio}}
-      </div>
-    </div>
-
     <!-- take picture -->
     <br>
     <button type="button" (click)="takePhoto()"
@@ -102,41 +100,6 @@
           class="flex items-center h-10 px-6 rounded-md bg-sky-50 text-sky-700 hover:bg-sky-100 shadow">
           <ion-icon name="videocam-outline"></ion-icon> &nbsp;
           Download resize images
-        </button>
-      </div>
-
-      <!-- for idNumberSection  -->
-      <br>
-      <div *ngIf="idNumberSection">
-        <div class="flex flex-col w-full items-center justify-center">
-          <p class="flex w-full text-sm justify-center items-center p-2 bg-sky-50">
-            idNumberSection {{ idNumberSection.resolution }}
-          </p>
-          <img [src]="idNumberSection.dataURL" class="h-auto" loading="lazy">
-        </div> <br>
-
-        <br>
-        <button (click)="downloadImage(idNumberSection.dataURL)" type="button" *ngIf="onTakePhoto === true"
-          class="flex items-center h-10 px-6 rounded-md bg-sky-50 text-sky-700 hover:bg-sky-100 shadow">
-          <ion-icon name="videocam-outline"></ion-icon> &nbsp;
-          Download idNumberSection
-        </button>
-      </div>
-
-      <!-- for barcodeSection  -->
-      <br>
-      <div *ngIf="barcodeSection">
-        <div class="flex flex-col w-full items-center justify-center">
-          <p class="flex w-full text-sm justify-center items-center p-2 bg-sky-50">
-            barcodeSection {{ barcodeSection.resolution }}
-          </p>
-          <img [src]="barcodeSection.dataURL" class="h-auto" loading="lazy">
-        </div> <br>
-        <br>
-        <button (click)="downloadImage(barcodeSection.dataURL)" type="button" *ngIf="onTakePhoto === true"
-          class="flex items-center h-10 px-6 rounded-md bg-sky-50 text-sky-700 hover:bg-sky-100 shadow">
-          <ion-icon name="videocam-outline"></ion-icon> &nbsp;
-          Download barcodeSection
         </button>
       </div>
     </div>

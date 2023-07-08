@@ -1,6 +1,44 @@
 .containerVideo {
+    position: relative;
     width: 100%;
     background-color: aquamarine;
-    position: relative;
     margin-bottom: 0.5;
+}
+
+.guide-box {
+    position: relative;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding-left: 10%;
+}
+
+.guide-border {
+    position: absolute;
+    border: 2px solid #fff;
+    width: 100%;
+    height: 100%;
+    position: absolute;
+    top: 0;
+    left: 0;
+}
+
+.thai-id-card {
+    position: relative;
+    padding: 20px;
+    /* Adjust the value as per your requirements */
+    box-sizing: border-box;
+}
+
+/* Optional: Add additional styles for the ID card */
+.thai-id-card {
+    background-color: #ffffff;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+    /* Add more styles as needed */
 }

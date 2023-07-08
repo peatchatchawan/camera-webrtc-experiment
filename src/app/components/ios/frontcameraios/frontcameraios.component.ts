@@ -1,22 +1,21 @@
-
-import { NativeService } from 'src/app/services/native.service';
-import { WebrtcService } from 'src/app/services/webrtc.service';
 import { Component, ElementRef, OnInit, ViewChild } from '@angular/core';
 import { ModalController } from '@ionic/angular';
 import CameraInfo from 'src/app/services/model/cameraInfo';
 import captures from 'src/app/services/model/captures';
-import { Observable } from 'rxjs';
+import { NativeService } from 'src/app/services/native.service';
+import { WebrtcService } from 'src/app/services/webrtc.service';
 
 @Component({
-  selector: 'app-front',
-  templateUrl: './front.component.html',
-  styleUrls: ['./front.component.scss']
+  selector: 'app-frontcameraios',
+  templateUrl: './frontcameraios.component.html',
+  styleUrls: ['./frontcameraios.component.scss']
 })
-export class FrontComponent implements OnInit {
+export class FrontcameraiosComponent implements OnInit {
+
   @ViewChild('showVideo') showVideo: ElementRef<HTMLVideoElement>;
   @ViewChild('realVideo') realVideo: ElementRef<HTMLVideoElement>;
   @ViewChild('canvas') canvas: ElementRef<HTMLCanvasElement>;
-  @ViewChild('resizeCanvas') resizeCanvas: ElementRef<HTMLCanvasElement>;
+  @ViewChild('canvas2') canvas2: ElementRef<HTMLCanvasElement>;
   selectedRatio: string;
   ratio: string[] = [];
   realVideoWidth: number;
@@ -28,14 +27,11 @@ export class FrontComponent implements OnInit {
   targetCropWidth: number;
   passedResolutions: any[] = [];
   selectedResolution: any;
-  originalImages: any;
-  resizeImages: any | null;
-  rotateImages: any | null;
-  barcodeSection: any | null;
+  originalImages: captures;
+  resizeImages: captures | null;
+  rotateImages: captures | null;
   onTakePhoto: boolean;
   configQualityImage: any = 0.9;
-  qualityImage: number = 0.8;
-  idNumberSection: { dataURL: string; resolution: string; ratio: string; };
 
   constructor(
     private webrtcService: WebrtcService,
@@ -45,8 +41,6 @@ export class FrontComponent implements OnInit {
 
   async ngOnInit() {
     this.ratio = this.webrtcService.ratio;
-    this.selectedRatio = '16:9';
-    this.startCamera(this.selectedRatio);
   }
 
 
@@ -59,7 +53,7 @@ export class FrontComponent implements OnInit {
 
   async startCamera(ratio: string) {
     this.nativeService.presentLoadingWithOutTime('Opening camera...');
-    const camera = await this.webrtcService.getFrontCamera();
+    const camera = await this.webrtcService.getBackCamera();
     if (camera) {
       this.openCameraByRatio(camera, ratio);
     } else {
@@ -101,11 +95,6 @@ export class FrontComponent implements OnInit {
       this.showVideo.nativeElement.srcObject = this.webrtcService.stream;
       this.realVideo.nativeElement.srcObject = this.webrtcService.stream;
       this.showVideo.nativeElement.onloadeddata = () => {
-        // if (camera.side === 'Front Camera') {
-        //   this.showVideo.nativeElement.style.transform = 'scaleX(-1)';
-        // } else {
-        //   this.showVideo.nativeElement.style.transform = 'scaleX(1)';
-        // }
         this.showVideo.nativeElement.play();
         this.realVideo.nativeElement.play();
         const { videoWidth, videoHeight } = this.realVideo.nativeElement;
@@ -145,7 +134,7 @@ export class FrontComponent implements OnInit {
 
     this.targetCropHeight = 0;
     this.targetCropWidth = 0;
-    const resizeCanvas = this.resizeCanvas.nativeElement;
+    const resizeCanvas = this.canvas2.nativeElement;
 
     if (resizeCanvas.width !== 0 || resizeCanvas.height !== 0) {
       resizeCanvas.width = 0;
@@ -184,7 +173,7 @@ export class FrontComponent implements OnInit {
       }
 
       // resize image
-      const resizeCanvas = this.resizeCanvas.nativeElement;
+      const resizeCanvas = this.canvas2.nativeElement;
       const resizeContext = resizeCanvas.getContext('2d');
       resizeCanvas.width = this.targetCropWidth;
       resizeCanvas.height = this.targetCropHeight;
@@ -199,8 +188,6 @@ export class FrontComponent implements OnInit {
           this.resizeImages = { dataURL: dataURL, resolution: resolution, ratio: this.useRatio };
         }
       }
-
-
 
       // rotate image
       if (this.resizeImages) {
@@ -227,7 +214,6 @@ export class FrontComponent implements OnInit {
         console.log('not resize image');
       }
 
-      this.cropImage();
       this.onTakePhoto = true
     } catch (error) {
       console.log(error);
@@ -241,157 +227,4 @@ export class FrontComponent implements OnInit {
     downloadLink.download = 'image.jpg';
     downloadLink.click();
   }
-
-  async take() {
-    this.originalImages = await this.captureImage();
-    console.log('originalImages:', this.originalImages);
-  }
-
-  captureImage() {
-    return new Promise((resolve, reject) => {
-      try {
-        const video = this.realVideo?.nativeElement;
-        const canvas = this.canvas?.nativeElement;
-        const ctx = canvas?.getContext('2d');
-
-        if (!video || !canvas || !ctx) {
-          throw new Error('Video, canvas, or context not available');
-        }
-
-        canvas.width = video.videoWidth;
-        canvas.height = video.videoHeight;
-        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
-
-        const dataURL = canvas.toDataURL('image/jpeg', this.configQualityImage);
-        const resolution = { width: canvas.width, height: canvas.height };
-        const image = { dataURL: dataURL, resolution: resolution, ratio: this.useRatio };
-        resolve(image);
-      } catch (err) {
-        reject(err);
-      }
-    });
-  }
-
-  resizeImage(image: any, width: number, height: number) {
-    try {
-      const canvas = this.resizeCanvas.nativeElement;
-      const ctx = canvas.getContext('2d');
-      if (ctx) {
-        canvas.width = width;
-        canvas.height = height;
-        ctx.drawImage(image, 0, 0, canvas.width, canvas.height);
-        const dataURL = canvas.toDataURL('image/jpeg', this.qualityImage);
-        this.resizeImage = { dataURL: dataURL, resolution: [canvas.width, canvas.height], ratio: this.useRatio };
-      }
-    } catch (err) {
-      console.log(err);
-    }
-
-  }
-
-  // async cropImage() {
-  //   if (this.resizeImages) {
-  //     const image = new Image();
-  //     image.src = this.resizeImages.dataURL;
-  //     const loadImage = new Promise<void>((resolve) => {
-  //       image.onload = () => resolve();
-  //     });
-  //     await loadImage; // Wait for the image to load
-  //     const canvasCropImage = document.createElement('canvas');
-  //     const ctxCropImage = canvasCropImage.getContext('2d');
-  //     if (ctxCropImage) {
-  //       const imageWidth = image.width;
-  //       const imageHeight = image.height;
-  //       // Calculate section dimensions
-  //       const barcodeSectionWidth = Math.floor(imageWidth * 0.1);
-  //       const barcodeSectionHeight = Math.floor(imageHeight * 1);
-  //       canvasCropImage.width = barcodeSectionWidth;
-  //       canvasCropImage.height = barcodeSectionHeight;
-
-  //       // Clear canvas
-  //       ctxCropImage.clearRect(0, 0, canvasCropImage.width, canvasCropImage.height);
-
-  //       // Crop and draw barcode section
-  //       const barcodeX = imageWidth * 0.1;
-  //       const barcodeY = 0;
-  //       ctxCropImage.drawImage(image, barcodeX, barcodeY, barcodeSectionWidth, barcodeSectionHeight, 0, 0, barcodeSectionWidth, barcodeSectionHeight);
-  //       const barcodeSectionUrl = ctxCropImage.canvas.toDataURL('image/jpeg', this.configQualityImage);
-  //       this.barcodeSection = { dataURL: barcodeSectionUrl, resolution: `${canvasCropImage.width}x${canvasCropImage.height}`, ratio: this.useRatio };
-  //     } else {
-  //       console.log('not resize image');
-  //     }
-
-  //     const canvasCropSection2 = document.createElement('canvas');
-  //     const ctxCropCropSection2 = canvasCropSection2.getContext('2d');
-  //     if (ctxCropCropSection2) {
-  //       const imageWidth = image.width;
-  //       const imageHeight = image.height;
-  //       const idNumberSectionWidth = Math.floor(imageWidth * 1);
-  //       const idNumberSectionHeight = Math.floor(imageHeight * 0.12);
-  //       canvasCropImage.width = 680;
-  //       canvasCropImage.height = 100;
-
-  //       ctxCropCropSection2.clearRect(0, 0, canvasCropImage.width, canvasCropImage.height);
-  //       const idNumberSectionX = imageWidth * 0.1; // 0.25 = 25% of image width (from left)
-  //       const idNumberSectionY = 0;
-
-  //       console.log('idNumberSectionWidth', idNumberSectionWidth);
-  //       console.log('idNumberSectionHeight', idNumberSectionHeight);
-  //       console.log('idNumberSectionX', idNumberSectionX);
-  //       console.log('idNumberSectionY', idNumberSectionY);
-  //       ctxCropCropSection2.drawImage(image, 300, 30, 680, 100, 0, 0, 680, 100);
-  //       const idNumberSectionUrl = ctxCropCropSection2.canvas.toDataURL('image/jpeg', this.configQualityImage);
-  //       this.idNumberSection = { dataURL: idNumberSectionUrl, resolution: `${canvasCropImage.width}x${canvasCropImage.height}`, ratio: this.useRatio };
-  //     }
-  //   } else {
-  //     console.log('not resize image');
-  //   }
-  // }
-
-
-  async cropImage() {
-    if (this.resizeImages) {
-      const image = new Image();
-      image.src = this.resizeImages.dataURL;
-      const imageBitmap = await createImageBitmap(image);
-
-      const canvasCropImage = document.createElement('canvas');
-      const ctxCropImage = canvasCropImage.getContext('2d');
-      if (ctxCropImage) {
-        const imageWidth = image.width;
-        const imageHeight = image.height;
-
-        // Crop barcode section
-        const barcodeSectionWidth = Math.floor(imageWidth * 0.1);
-        const barcodeSectionHeight = imageHeight;
-        const barcodeSectionX = imageWidth * 0.1;
-        const barcodeSectionY = 0;
-        canvasCropImage.width = barcodeSectionWidth;
-        canvasCropImage.height = barcodeSectionHeight;
-
-        ctxCropImage.drawImage(imageBitmap, barcodeSectionX, barcodeSectionY, barcodeSectionWidth, barcodeSectionHeight, 0, 0, barcodeSectionWidth, barcodeSectionHeight);
-
-        const barcodeSectionUrl = canvasCropImage.toDataURL('image/jpeg', this.configQualityImage);
-        this.barcodeSection = { dataURL: barcodeSectionUrl, resolution: `${canvasCropImage.width}x${canvasCropImage.height}`, ratio: this.useRatio };
-
-        // Crop ID number section
-        const idNumberSectionWidth = imageWidth * .55;
-        const idNumberSectionHeight = Math.floor(imageHeight * .15);
-        const idNumberSectionX = imageWidth * 0.23; // 0.25 = 25% of image width (from left)
-        const idNumberSectionY = imageHeight * 0.1; // 0.1 = 10% of image height (from top)
-        canvasCropImage.width = idNumberSectionWidth;
-        canvasCropImage.height = idNumberSectionHeight;
-
-        ctxCropImage.drawImage(imageBitmap, idNumberSectionX, idNumberSectionY, idNumberSectionWidth, idNumberSectionHeight, 0, 0, idNumberSectionWidth, idNumberSectionHeight);
-        const idNumberSectionUrl = canvasCropImage.toDataURL('image/jpeg', this.configQualityImage);
-        this.idNumberSection = { dataURL: idNumberSectionUrl, resolution: `${canvasCropImage.width}x${canvasCropImage.height}`, ratio: this.useRatio };
-      } else {
-        console.log('Cannot obtain 2D rendering context');
-      }
-    } else {
-      console.log('No image to resize');
-    }
-  }
-
 }
-

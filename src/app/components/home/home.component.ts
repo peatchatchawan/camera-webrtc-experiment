@@ -7,6 +7,8 @@ import CameraInfo from 'src/app/services/model/cameraInfo';
 import { ModalController } from '@ionic/angular';
 import { FrontComponent } from '../front/front.component';
 import { BackComponent } from '../back/back.component';
+import { FrontcameraiosComponent } from '../ios/frontcameraios/frontcameraios.component';
+import { BackcameraiosComponent } from '../ios/backcameraios/backcameraios.component';
 
 @Component({
   selector: 'app-home',
@@ -156,5 +158,20 @@ export class HomeComponent implements OnInit {
     });
     await modal.present();
   }
+
+  async presentFrontCameraIos() {
+    const modal = await this.modalController.create({
+      component: FrontcameraiosComponent,
+    });
+    await modal.present();
+  }
+
+  async presentBackCameraIos() {
+    const modal = await this.modalController.create({
+      component: BackcameraiosComponent,
+    });
+    await modal.present();
+  }
+
 
 }

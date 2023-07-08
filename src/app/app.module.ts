@@ -7,8 +7,10 @@ import { IonicModule } from '@ionic/angular';
 import { HomeComponent } from './components/home/home.component';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { FrontComponent } from './components/front/front.component';
 import { BackComponent } from './components/back/back.component';
+import { FrontComponent } from './components/front/front.component';
+import { BackcameraiosComponent } from './components/ios/backcameraios/backcameraios.component';
+import { FrontcameraiosComponent } from './components/ios/frontcameraios/frontcameraios.component';
 
 @NgModule({
   declarations: [
@@ -16,6 +18,8 @@ import { BackComponent } from './components/back/back.component';
     HomeComponent,
     FrontComponent,
     BackComponent,
+    FrontcameraiosComponent,
+    BackcameraiosComponent
   ],
   imports: [
     BrowserModule,

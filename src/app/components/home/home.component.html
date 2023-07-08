@@ -46,14 +46,26 @@
           </p>
         </div>
         <div class="mx-6 my-4 flex">
-          <button type="button" *ngIf="camera.side === 'Front Camera'" (click)="presentFrontCamera()"
-            class="h-10 px-6 mt-2 bg-sky-50 text-sky-700 rounded-md shadow">
-            <p class="w-full">Front Camera</p>
-          </button>
-          <button type="button" *ngIf="camera.side === 'Back Camera'" (click)="presentBackCamera()"
-            class="h-10 px-6 mt-2 bg-sky-50 text-sky-700 rounded-md shadow">
-            <p class="w-full">Back Camera</p>
-          </button>
+          <div *ngIf="camera.side === 'Front Camera'">
+            <button type="button" (click)="presentFrontCamera()"
+              class="h-10 px-6 mt-2 bg-sky-50 text-sky-700 rounded-md shadow">
+              <p class="w-full">Front Camera for android</p>
+            </button> &nbsp;
+            <button type="button" (click)="presentFrontCameraIos()"
+              class="h-10 px-6 mt-2 bg-sky-50 text-sky-700 rounded-md shadow">
+              <p class="w-full">Front Camera for ios</p>
+            </button>
+          </div>
+          <div *ngIf="camera.side === 'Back Camera'">
+            <button type="button" (click)="presentBackCamera()"
+              class="h-10 px-6 mt-2 bg-sky-50 text-sky-700 rounded-md shadow">
+              <p class="w-full">Back Camera for android</p>
+            </button> &nbsp;
+            <button type="button" (click)="presentBackCameraIos()"
+              class="h-10 px-6 mt-2 bg-sky-50 text-sky-700 rounded-md shadow">
+              <p class="w-full">Back Camera for ios</p>
+            </button>
+          </div>
         </div>
       </div>
     </div>
