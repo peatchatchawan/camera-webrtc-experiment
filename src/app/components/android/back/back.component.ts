@@ -73,13 +73,17 @@ export class BackComponent implements OnInit {
     if (!resolutions) {
       console.log('Invalid ratio:', ratio);
       this.nativeService.presentAlert('Error', 'Invalid ratio');
-      return;
+      setTimeout(() => {
+        this.nativeService.dismissLoading();
+      }, 500);
     }
 
     if (index >= resolutions.length) {
       console.log('No suitable resolution found for the ratio:', ratio);
       this.nativeService.presentAlert('Error', 'No suitable resolution found for the ratio');
-      return;
+      setTimeout(() => {
+        this.nativeService.dismissLoading();
+      }, 500);
     }
 
     const resolution = resolutions[index];
