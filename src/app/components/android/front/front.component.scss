@@ -1,0 +1,55 @@
+.body {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 1rem;
+}
+
+.ratioSection {
+  position: absolute;
+  z-index: 10;
+}
+
+.video-container {
+  position: relative;
+  width: 100%;
+  height: auto;
+}
+
+.video-sim {
+  // width: 100%;
+  // height: 740px;
+  display: flex;
+  position: relative;
+  align-items: center;
+  justify-content: center;
+}
+
+.video-sim .guide-border {
+  position: absolute;
+  width: 85%;
+  height: 70%;
+  border: 3px solid white;
+  box-sizing: border-box;
+}
+
+.video-sim .guide-border-id-number {
+  position: absolute;
+  width: 8%;
+  height: 27%;
+  top: 46%;
+  right: 17%;
+  border: 3px solid white;
+  box-sizing: border-box;
+}
+
+.video-sim .guide-border-details {
+  position: absolute;
+  width: 67%;
+  height: 48%;
+  top: 22%;
+  right: 25%;
+  border: 3px solid white;
+  box-sizing: border-box;
+}

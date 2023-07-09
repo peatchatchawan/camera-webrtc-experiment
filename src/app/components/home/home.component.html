@@ -1,0 +1,51 @@
+<ion-content>
+  <div class="body">
+    <h1>Home</h1>
+    <p>
+      Permission: {{stateCameraPermission}}<br>
+    </p>
+
+    <div *ngIf="stateCameraPermission === 'prompt'">
+      <ion-button (click)="requestPermission()">
+        <ion-icon slot="start" name="add"></ion-icon>
+        Request Permission
+      </ion-button>
+    </div>
+
+    <p>
+      device: {{device}}<br>
+      deviceType: {{deviceType}}<br>
+      os: {{os}}<br>
+      osVersion: {{osVersion}}<br>
+      browser: {{browser}} <br>
+      browserVersion: {{browserVersion}} <br>
+      cpu: {{cpu}} Cores<br>
+      memory: {{memory}} Gigabyte<br>
+      orientation: {{orientation}} <br>
+      userAgent: {{userAgent}} <br><br>
+    </p>
+
+    <div *ngIf="cameras" style="width: 100%;">
+      <ion-card *ngFor="let camera of cameras">
+        <ion-card-header>
+          <ion-card-title>{{camera.side}}</ion-card-title>
+          <ion-card-subtitle>{{camera.label}}</ion-card-subtitle>
+        </ion-card-header>
+
+        <ion-card-content *ngIf="camera.side === 'Front Camera'">
+          <ion-button (click)="presentFrontAndroidModal()">
+            <ion-icon slot="start" name="camera"></ion-icon>
+            Open Front
+          </ion-button>
+        </ion-card-content>
+
+        <ion-card-content *ngIf="camera.side === 'Back Camera'">
+          <ion-button (click)="presentBackAndroidModal()">
+            <ion-icon slot="start" name="camera"></ion-icon>
+            Open Back
+          </ion-button>
+        </ion-card-content>
+      </ion-card>
+    </div>
+  </div>
+</ion-content>

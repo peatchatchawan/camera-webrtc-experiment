@@ -1,0 +1,79 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-button (click)="onDismiss('cancel','cancel')">
+        <ion-icon name="chevron-back-outline"></ion-icon>
+        <span class="ml-1">back</span>
+      </ion-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content>
+  <div class="body">
+    <div *ngIf="ratio" class="flex flex-row w-full items-center justify-center">
+      <ion-item class="w-full text-sm" aria-label="Select Ratio">
+        <ion-label>Choose a ratio</ion-label>
+        <ion-select [(ngModel)]="selectedRatio" interface="action-sheet" placeholder="Choose a ratio"
+          (ionChange)="onRatioChange($event)">
+          <ion-select-option *ngFor="let ratio of ratio" [value]="ratio">
+            {{ ratio }}
+          </ion-select-option>
+        </ion-select>
+      </ion-item>
+    </div>
+
+    <div *ngIf="cameraReady === true"
+      style="width: 100%; background-color: burlywood; text-align: center; font-size: 14px;">
+      <p>{{realWidth}}x{{realHeight}}</p>
+    </div>
+    <!-- <div class="video-sim">
+      <video #showVideo autoplay playsinline class="video-container"></video>
+      <div class="guide-border"></div>
+      <div class="guide-border-id-number"></div>
+      <div class="guide-border-details"></div>
+    </div> -->
+
+    <div class="video-sim">
+      <video #showVideo autoplay playsinline class="video-container"></video>
+    </div>
+
+    <ion-button (click)="capture()" expand="block" fill="clear" shape="round">
+      Capture
+    </ion-button>
+
+    <video #realVideo playsInline autoplay style="display: none;"></video>
+    <canvas #canvas style="display: none;"></canvas>
+
+
+    <!-- for fullImages  -->
+    <br>
+    <div *ngIf="fullImage">
+      <div class="flex flex-col w-full items-center justify-center">
+        <p class="flex w-full text-sm justify-center items-center p-2 bg-sky-100">
+          Full Images {{fullImage.width}}x{{fullImage.height}} ratio {{fullImage.ratio}}
+        </p>
+        <img [src]="fullImage.dataURL" class="h-auto" loading="lazy">
+      </div>
+      <ion-button (click)="downloadImage(fullImage.dataURL)">
+        <ion-icon slot="start" name="download"></ion-icon>
+        download
+      </ion-button>
+    </div>
+
+    <!-- for fullImages  -->
+    <br>
+    <div *ngIf="resizeImage">
+      <div class="flex flex-col w-full items-center justify-center">
+        <p class="flex w-full text-sm justify-center items-center p-2 bg-sky-100">
+          resize Images {{resizeImage.width}}x{{resizeImage.height}} ratio {{fullImage.ratio ? fullImage.ratio : '?'}}
+        </p>
+        <img [src]="resizeImage.dataURL" class="h-auto" loading="lazy">
+      </div>
+      <ion-button (click)="downloadImage(resizeImage.dataURL)">
+        <ion-icon slot="start" name="download"></ion-icon>
+        download
+      </ion-button>
+    </div>
+  </div>
+</ion-content>
