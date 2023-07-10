@@ -99,6 +99,7 @@ export class FrontComponent implements OnInit {
       this.showVideo.nativeElement.srcObject = this.webrtcService.stream;
       this.realVideo.nativeElement.srcObject = this.webrtcService.stream;
       this.showVideo.nativeElement.onloadeddata = () => {
+        this.showVideo.nativeElement.classList.add('mirror');
         this.showVideo.nativeElement.play();
         this.realVideo.nativeElement.play();
         this.cameraReady = true;
