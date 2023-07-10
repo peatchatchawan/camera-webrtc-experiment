@@ -37,8 +37,9 @@ export class FrontComponent implements OnInit {
 
   ngOnInit(): void {
     this.ratio = this.webrtcService.ratio;
-    this.useRatio = '16:9'
-    this.initializeCamera(this.useRatio);
+    setTimeout(() => {
+      this.initializeCamera('16:9');
+    });
   }
 
   async onDismiss(data: string, role: string) {
@@ -51,51 +52,50 @@ export class FrontComponent implements OnInit {
     try {
       this.nativeService.presentLoadingWithOutTime('Loading...');
       const camera = await this.webrtcService.getFrontCamera();
+      console.log('camera:', camera);
       if (camera) {
-        console.log('เรียกข้อมูลกล้องแล้ว: ', camera);
-        this.openCameraByRatio(camera, ratio);
+        await this.openCameraByRatio(camera, ratio);
       } else {
-        console.log('ไม่พบกล้อง');
         this.nativeService.presentAlert('Error', 'ไม่พบกล้อง');
-        setTimeout(() => {
-          this.nativeService.dismissLoading();
-        }, 500);
       }
     } catch (error) {
-      console.log(error);
+      console.log('Error initializing camera:', error);
+    } finally {
+      this.dismissLoading();
     }
   }
 
-  openCameraByRatio(camera: CameraInfo, ratio: string, index: number = 0) {
+  async openCameraByRatio(camera: CameraInfo, ratio: string, index: number = 0) {
     const resolutions = this.webrtcService.resolutionByRatio[ratio];
+
     if (!resolutions) {
       console.log('Invalid ratio:', ratio);
       this.nativeService.presentAlert('Error', 'Invalid ratio');
-      setTimeout(() => {
-        this.nativeService.dismissLoading();
-      }, 500);
+      this.dismissLoading();
+      return;
     }
 
     if (index >= resolutions.length) {
       console.log('No suitable resolution found for the ratio:', ratio);
       this.nativeService.presentAlert('Error', 'No suitable resolution found for the ratio');
-      setTimeout(() => {
-        this.nativeService.dismissLoading();
-      }, 500);
+      this.dismissLoading();
+      return;
     }
 
     const resolution = resolutions[index];
     console.log('Trying to open camera with resolution:', resolution);
-    let constraints = {
+    const constraints = {
       video: {
         deviceId: camera.deviceId ? { exact: camera.deviceId } : undefined,
         width: { exact: resolution.width },
         height: { exact: resolution.height },
         facingMode: camera.side === 'Front Camera' ? 'user' : 'environment',
       }
-    }
-    navigator.mediaDevices.getUserMedia(constraints).then((result) => {
-      this.webrtcService.stream = result;
+    };
+
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia(constraints);
+      this.webrtcService.stream = stream;
       this.showVideo.nativeElement.srcObject = this.webrtcService.stream;
       this.realVideo.nativeElement.srcObject = this.webrtcService.stream;
       this.showVideo.nativeElement.onloadeddata = () => {
@@ -106,22 +106,24 @@ export class FrontComponent implements OnInit {
         this.realWidth = videoWidth;
         this.realHeight = videoHeight;
         this.useRatio = ratio;
-      }
-      setTimeout(async () => {
-        this.nativeService.dismissLoading();
-      }, 500);
-    }).catch((error) => {
+      };
+      this.dismissLoading();
+    } catch (error: any) {
       if (error.name === 'OverconstrainedError') {
         console.log('OverconstrainedError, trying next resolution...');
         this.openCameraByRatio(camera, ratio, index + 1);
       } else {
         console.log('Error opening camera:', error);
         this.nativeService.presentAlert('Error', 'Error opening camera');
-        setTimeout(async () => {
-          this.nativeService.dismissLoading();
-        }, 500);
+        this.dismissLoading();
       }
-    });
+    }
+  }
+
+  dismissLoading() {
+    setTimeout(() => {
+      this.nativeService.dismissLoading();
+    }, 500);
   }
 
   initializeRatio() {
@@ -143,11 +145,19 @@ export class FrontComponent implements OnInit {
 
   onRatioChange(event: any) {
     this.selectedRatio = event.detail.value;
-    // this.onChangeCamera = this.lastedRatioInput !== this.selectedRatio;
+    let targetRatio: string;
+
     if (this.selectedRatio === '4:3' || this.selectedRatio === '3:4') {
-      this.initializeCamera('4:3');
+      targetRatio = '4:3';
     } else if (this.selectedRatio === '16:9' || this.selectedRatio === '9:16') {
-      this.initializeCamera('16:9');
+      targetRatio = '16:9';
+    } else {
+      return;
+    }
+
+    if (targetRatio !== this.useRatio) {
+      this.useRatio = targetRatio;
+      this.initializeCamera(this.useRatio);
     }
 
     this.resizeWidth = 0;
@@ -155,37 +165,43 @@ export class FrontComponent implements OnInit {
   }
 
 
-  async capture() {
-    const video = this.realVideo.nativeElement;
-    const canvas = this.canvas.nativeElement;
-    const realsizeCtx = this.canvas.nativeElement.getContext('2d');
-    if (realsizeCtx) {
-      canvas.width = video.videoWidth;
-      canvas.height = video.videoHeight;
-      realsizeCtx.drawImage(video, 0, 0, canvas.width, canvas.height);
-      const dataUrl = canvas.toDataURL('image/jpeg', this.qualityImage);
-      this.fullImage = { dataURL: dataUrl, width: canvas.width, height: canvas.height, ratio: this.selectedRatio };
-    } else {
-      console.log('realsizeCtx Error');
-    }
 
-    const resizeCanvas = document.createElement('canvas');
-    const resizeCtx = resizeCanvas.getContext('2d');
-    if (resizeCtx) {
-      this.initializeRatio();
-      resizeCanvas.width = this.resizeWidth;
-      resizeCanvas.height = this.resizeHeight;
-      if (resizeCanvas.width < 50 || resizeCanvas.height < 50) {
-        console.log('resizeCanvas.width < 50 || resizeCanvas.height < 50');
+  async capture() {
+    try {
+      const video = this.realVideo.nativeElement;
+      const canvas = this.canvas.nativeElement;
+      const realsizeCtx = canvas.getContext('2d');
+      if (realsizeCtx) {
+        canvas.width = video.videoWidth;
+        canvas.height = video.videoHeight;
+        realsizeCtx.drawImage(video, 0, 0, canvas.width, canvas.height);
+        const dataUrl = canvas.toDataURL('image/jpeg', this.qualityImage);
+        this.fullImage = { dataURL: dataUrl, width: canvas.width, height: canvas.height, ratio: this.selectedRatio };
       } else {
-        resizeCtx.drawImage(video, 0, 0, resizeCanvas.width, resizeCanvas.height);
-        const dataUrl = resizeCanvas.toDataURL('image/jpeg', this.qualityImage);
-        this.resizeImage = { dataURL: dataUrl, width: resizeCanvas.width, height: resizeCanvas.height, ratio: this.selectedRatio };
+        console.error('realsizeCtx Error');
       }
-    } else {
-      console.error('resizeCtx Error');
+
+      const resizeCanvas = document.createElement('canvas');
+      const resizeCtx = resizeCanvas.getContext('2d');
+      if (resizeCtx) {
+        this.initializeRatio();
+        resizeCanvas.width = this.resizeWidth;
+        resizeCanvas.height = this.resizeHeight;
+        if (resizeCanvas.width < 50 || resizeCanvas.height < 50) {
+          console.log('resizeCanvas.width < 50 || resizeCanvas.height < 50');
+        } else {
+          resizeCtx.drawImage(video, 0, 0, resizeCanvas.width, resizeCanvas.height);
+          const dataUrl = resizeCanvas.toDataURL('image/jpeg', this.qualityImage);
+          this.resizeImage = { dataURL: dataUrl, width: resizeCanvas.width, height: resizeCanvas.height, ratio: this.selectedRatio };
+        }
+      } else {
+        console.error('resizeCtx Error');
+      }
+    } catch (error) {
+      console.error('Error capturing image:', error);
     }
   }
+
 
   downloadImage(dataURL: any) {
     const downloadLink = document.createElement('a');

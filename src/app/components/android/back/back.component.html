@@ -27,16 +27,20 @@
       style="width: 100%; background-color: burlywood; text-align: center; font-size: 14px;">
       <p>{{realWidth}}x{{realHeight}}</p>
     </div>
-    <div *ngIf="useRatio === '9:16'" class="video-sim">
-      <video #showVideo autoplay playsinline class="video-container"></video>
-      <!-- <video #showVideo autoplay playsinline class="hidden"></video> -->
-      <div class="guide-border"></div>
-      <div class="guide-border-id-number"></div>
-      <div class="guide-border-details"></div>
+
+    <div *ngIf="useRatio === '16:9' || useRatio === '9:16'">
+      <div class="video-sim">
+        <video #showVideo autoplay playsinline class="video-container"></video>
+        <div class="guide-border"></div>
+        <div class="guide-border-id-number"></div>
+        <div class="guide-border-details"></div>
+      </div>
     </div>
 
-    <div *ngIf="useRatio === '3:4'" class="video-sim">
-      <video #showVideo autoplay playsinline class="video-container"></video>
+    <div *ngIf="useRatio === '4:3' || useRatio === '3:4'">
+      <div class="video-sim">
+        <video #showVideo autoplay playsinline class="video-container"></video>
+      </div>
     </div>
 
     <ion-button (click)="capture()" expand="block" fill="clear" shape="round">
